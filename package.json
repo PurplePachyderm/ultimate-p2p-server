@@ -1,0 +1,13 @@
+{
+    "name": "ultimate-p2p-server",
+    "version": "1.0.0",
+    "description": "A P2P platform for the masses",
+    "author": "Arveto Ink.",
+    "license": "GPU",
+    "private": true,
+    "dependencies": {
+        "express": "",
+        "mysql": "",
+        "socket.io": ""
+    }
+}
