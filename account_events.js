@@ -28,8 +28,7 @@ function listen(socket, database, peers){
                         faName: user.faName,
                         fiName: user.fiName,
                         pseudo: user.pseudo,
-                        email: user.email,
-                        admin: false
+                        email: user.email
                     }
 
                     socket.emit('signUpSuccess', userData);
@@ -53,9 +52,11 @@ function listen(socket, database, peers){
         .then(rows => {
 
             if(rows.length == 1){
+                console.log("Success!");
                 socket.emit('signInSuccess', rows[0]);
             }
             else {
+                console.log("Failure =/");
                 socket.emit('signInFailure');
             }
 
