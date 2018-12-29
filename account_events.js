@@ -1,6 +1,6 @@
 
     //Function to create events listeners
-function listen(socket, database, peers){
+function listen(socket, database, users){
 
         //*** Sign up/in ***
 
@@ -24,14 +24,16 @@ function listen(socket, database, peers){
                 .then(rows => {
                     console.log("User added!");
 
+                    users.push({id : rows[0].id, socketId: user.socketId});
+                    console.log(users);
+
                     let userData = {
                         faName: user.faName,
                         fiName: user.fiName,
                         pseudo: user.pseudo,
                         email: user.email
-                    }
-
-                    socket.emit('signUpSuccess', userData);
+                    };
+                    socket.emit('signInSuccess', userData);
                 });
             }
             else {
@@ -46,13 +48,17 @@ function listen(socket, database, peers){
     socket.on('signIn', (user) => {
         console.log('signIn request !');
 
-        let query = 'SELECT fiName, faName, pseudo, email \
+        let query = 'SELECT id, fiName, faName, pseudo, email \
         FROM users WHERE email = ? AND password = ?;';
         database.query(query, [user.email, user.password])
         .then(rows => {
 
             if(rows.length == 1){
                 console.log("Success!");
+
+                users.push({id : rows[0].id, socketId: user.socketId});
+                console.log(users);
+
                 socket.emit('signInSuccess', rows[0]);
             }
             else {
@@ -61,6 +67,23 @@ function listen(socket, database, peers){
             }
 
         });
+    });
+
+
+
+    socket.on('signOut', (user) => {
+        console.log(user.socketId+' signing out');
+
+        let i = 0;
+        while(i < users.length){
+            //Iterate the array backwards to match IDs faster
+            if(users[i].socketId == user.socketId){
+                users.splice(i, 1);
+                break;
+            }
+            i++;
+        }
+        console.log(users);
     });
 
 

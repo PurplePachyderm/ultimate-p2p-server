@@ -9,7 +9,7 @@ const databaseWrapper = require('./db_wrapper.js');
 const p2pEvents = require('./p2p_events.js');
 const accountEvents = require('./account_events.js');
 
-var peers = [];
+var users = [];
 
 /******************************************************************************/
 
@@ -37,8 +37,8 @@ app.get('/', (req, res) => {
 
     //Socket.io events
 io.sockets.on('connection', function(socket) {
-    p2pEvents.listen(socket, database, peers);
-    accountEvents.listen(socket, database, peers);
+    p2pEvents.listen(socket, database, users);
+    accountEvents.listen(socket, database, users);
 });
 
 server.listen(8080);
