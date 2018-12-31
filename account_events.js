@@ -24,8 +24,7 @@ function listen(socket, database, users){
                 .then(rows => {
                     console.log("User added!");
 
-                    users.push({id : rows[0].id, socketId: user.socketId});
-                    console.log(users);
+                    users.push({id : rows[0].id, socketId: user.socketId, peerId: user.peerId});
 
                     let userData = {
                         faName: user.faName,
@@ -56,8 +55,7 @@ function listen(socket, database, users){
             if(rows.length == 1){
                 console.log("Success!");
 
-                users.push({id : rows[0].id, socketId: user.socketId});
-                console.log(users);
+                users.push({id : rows[0].id, socketId: user.socketId, peerId: user.peerId});
 
                 socket.emit('signInSuccess', rows[0]);
             }
@@ -83,7 +81,6 @@ function listen(socket, database, users){
             }
             i++;
         }
-        console.log(users);
     });
 
 

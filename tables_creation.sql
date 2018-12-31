@@ -12,7 +12,7 @@ CREATE TABLE `users` (
 CREATE TABLE `files` (
 	`id` INT unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(128) NOT NULL,
-	`description` TEXT,
-	`weight` SMALLINT unsigned,
+    `owners` MEDIUMTEXT NOT NULL,
+    `description` TEXT,
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

@@ -39,6 +39,20 @@ app.get('/', (req, res) => {
 io.sockets.on('connection', function(socket) {
     p2pEvents.listen(socket, database, users);
     accountEvents.listen(socket, database, users);
+
+        //Handle disconnection event to keep users list up to date
+    socket.on('disconnect', function () {
+        console.log(socket.id);
+        let i=0;
+        while(i < users.length){
+            if(socket.id == users[i].socketId){
+                users.splice(i, 1);
+                break;
+            }
+            i++;
+        }
+        console.log(users);
+    });
 });
 
 server.listen(8080);
