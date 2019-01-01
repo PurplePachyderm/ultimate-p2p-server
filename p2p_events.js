@@ -3,7 +3,8 @@ function listen(socket, database, users){
 
     //Update local data on user's shared file at his connection
     socket.on('clientListUpdate', (data) => {
-        console.log(data);
+
+        let eventSent;
 
         //Get user DB Id
         let id;
@@ -17,36 +18,36 @@ function listen(socket, database, users){
 
         //Add new files
         if(data.unmatchedFiles.length > 0){
+            eventSent = true;
+
                 //Build the query dynamically to add all the files at once
             let query = 'INSERT INTO files (name, owners) VALUES (?, ?);'
+            let newFilesData = {list: []};
 
-            for(let i=1; i<data.unmatchedFiles.length; i++){
-                query += ', (?, ?)'
-            }
-            query += ';';
-
-                //Build parameters array
-            let params = [];
             for(let i=0; i<data.unmatchedFiles.length; i++){
-                params.push(data.unmatchedFiles[i]);
-                params.push(id.toString());
+
+                database.query(query, [data.unmatchedFiles[i], id.toString()])
+                .then(rows => {
+
+                    newFilesData.list.push({id: rows.insertId, name: data.unmatchedFiles[i]});
+
+                    if(i == data.unmatchedFiles.length - 1){
+                        socket.emit('rebuildData', newFilesData);
+                    }
+
+
+
+                });
             }
-
-            //Query
-            database.query(query, params)
-            .then(rows => {
-                let newData = [];
-                for(let i=0; i<rows.length; i++){
-                    newData.push({id: rows[i].id});
-                }
-
-                socket.emit('newFiles', {list: newData});
-            });
         }
 
 
         //Remove owner in old files
         if(data.deletedFiles.length > 0){
+            if(!eventSent){
+                socket.emit('rebuildData', {list: []});
+            }
+
             //Build query
             let query = 'SELECT owners, id FROM files WHERE id=?;'
             for(let i=1; i<data.unmatchedFiles.length; i++){
@@ -87,10 +88,7 @@ function listen(socket, database, users){
                 return database.query(query, params);
             })
             .then(rows => {
-                console.log('SUCCESSS');
             });
-
-
         }
     });
 }
