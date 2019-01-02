@@ -87,7 +87,7 @@ function listen(socket, database, users){
         }
     });
 
-
+    //TODO Optimize this shit
 
     socket.on('search', (data) => {
 
@@ -102,6 +102,38 @@ function listen(socket, database, users){
 
             socket.emit('searchResult', {results: rows});
         })
+    });
+
+
+
+    socket.on('download', data => {
+        console.log('Downloading:'+data.id);
+
+        let query = "SELECT owners FROM files WHERE id = ?;"
+
+        database.query(query, [data.id])
+        .then(rows => {
+            let owners = rows[0].owners.split(',');
+            for(let i=0; i<owners.length; i++){
+                owners[i] = parseInt(owners[i]);
+            }
+
+            let i=0;
+            let j;
+            while(i<users.length){
+                j=0;
+                while(j<owners.length){
+                    if(users[i].id == owners[j]){
+                        console.log("Matched " + users[i]);
+                        socket.emit('peerFound', {peerId: users[i].peerId, fileId: data.id});
+                        i = users.length;
+                        j = owners.length;
+                    }
+                    j++;
+                }
+                i++;
+            }
+        });
     });
 }
 

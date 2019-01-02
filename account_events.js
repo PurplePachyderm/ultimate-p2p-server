@@ -56,7 +56,7 @@ function listen(socket, database, users){
                 console.log("Success!");
 
                 users.push({id : rows[0].id, socketId: user.socketId, peerId: user.peerId});
-
+                console.log(users);
                 socket.emit('signInSuccess', rows[0]);
             }
             else {
