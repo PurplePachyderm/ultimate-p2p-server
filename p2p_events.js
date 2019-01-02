@@ -34,9 +34,6 @@ function listen(socket, database, users){
                     if(i == data.unmatchedFiles.length - 1){
                         socket.emit('rebuildData', newFilesData);
                     }
-
-
-
                 });
             }
         }
@@ -48,46 +45,44 @@ function listen(socket, database, users){
                 socket.emit('rebuildData', {list: []});
             }
 
-            //Build query
-            let query = 'SELECT owners, id FROM files WHERE id=?;'
-            for(let i=1; i<data.unmatchedFiles.length; i++){
+
+            let query = 'SELECT owners, id FROM files WHERE id=?'
+            let params = [data.deletedFiles[0]];
+
+                //Build query && parameters array
+            for(let i=1; i<data.deletedFiles.length; i++){
                 query += ' OR id=?'
+                params.push(data.deletedFiles[i].id);
             }
             query += ';';
 
-                //Build parameters array
-            let params = [];
-            for(let i=0; i<data.deletedFiles.length; i++){
-                params.push(data.deletedFiles[i].id);
-            }
-
 
             //Query
-            query = '';
-            params = [];
             database.query(query, params)
             .then(rows => {
+
+                query = 'UPDATE files SET owners = ? WHERE ID = ?;';
+                params = [];
 
                 //Remove user ID to deleted files' "owners" field
                 let newData = [];
                 for(let i=0; i<rows.length; i++){
 
                     rows[i].owners = rows[i].owners.split(',');
+
                     for(let j=0; j<rows[i].owners.length; j++){
 
                         if(id == parseInt(rows[i].owners[j])){
                             rows[i].owners.splice(j, 1);
-                            query += 'UPDATE files SET owners = ? WHERE ID = ?; '
-                            params.push(rows[i].owners.toString());
-                            params.push(rows[i].id);
+
+                            database.query(query, [rows[i].owners.toString(), rows[i].id])
+                            .then(rows => {
+
+                            });
                             break;
                         }
                     }
                 }
-
-                return database.query(query, params);
-            })
-            .then(rows => {
             });
         }
     });
