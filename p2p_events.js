@@ -86,12 +86,24 @@ function listen(socket, database, users){
             });
         }
     });
+
+
+
+    socket.on('search', (data) => {
+
+        let query = "SELECT id, name, owners FROM files WHERE files.name LIKE ? AND owners != '';";
+
+        data.research = '%' + data.research + '%';
+
+        database.query(query, [data.research])
+        .then(rows => {
+            console.log("Search result:");
+            console.log(rows);
+
+            socket.emit('searchResult', {results: rows});
+        })
+    });
 }
-
-
-
-
-
 
 
 module.exports = {listen};
