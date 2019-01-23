@@ -21,7 +21,7 @@ function listen(socket, database, users){
             eventSent = true;
 
                 //Build the query dynamically to add all the files at once
-            let query = 'INSERT INTO files (name, owners) VALUES (?, ?);'
+            let query = 'INSERT INTO files (name, owners) VALUES (?, ?);';
             let newFilesData = {list: []};
 
             for(let i=0; i<data.unmatchedFiles.length; i++){
@@ -33,7 +33,7 @@ function listen(socket, database, users){
 
                     if(i == data.unmatchedFiles.length - 1){
                         socket.emit('rebuildData', newFilesData);
-                    }
+                    };
                 });
             }
         }
@@ -85,6 +85,9 @@ function listen(socket, database, users){
                 }
             });
         }
+
+        console.log("Exiting callback");
+
     });
 
     //TODO Optimize this shit
@@ -109,7 +112,7 @@ function listen(socket, database, users){
     socket.on('download', data => {
         console.log('Downloading:'+data.id);
 
-        let query = "SELECT owners FROM files WHERE id = ?;"
+        let query = "SELECT owners FROM files WHERE id = ?;";
 
         database.query(query, [data.id])
         .then(rows => {

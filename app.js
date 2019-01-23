@@ -2,7 +2,6 @@
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const ejs = require('ejs');
 const mysql = require('mysql');
 
 const databaseWrapper = require('./db_wrapper.js');
