@@ -24,7 +24,7 @@ function listen(socket, database, users){
                 .then(rows => {
                     console.log("User added!");
 
-                    users.push({id : rows[0].id, socketId: user.socketId, peerId: user.peerId});
+                    users.push({socketId: user.socketId, peerId: user.peerId});
 
                     let userData = {
                         faName: user.faName,
@@ -150,7 +150,7 @@ function listen(socket, database, users){
     socket.on('passwordEdit', (user) => {
         console.log('passwordEdit request !');
 
-        let query = 'UPDATE users SET password = ? WHERE email = ?;'
+        let query = 'UPDATE users SET password = ? WHERE email = ?;';
         database.query(query, [user.password, user.email])
         .then(rows => {
             socket.emit('passwordEditSuccess');
