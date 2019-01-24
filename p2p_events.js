@@ -124,7 +124,37 @@ function listen(socket, database, users){
             console.log("Search result:");
             console.log(rows);
 
-            socket.emit('searchResult', {results: rows});
+            let files = [];
+            let owners;
+            let matched;
+
+            for(let i=0; i<rows.length; i++){
+                matched = false;
+
+                owners = rows[i].owners.split(',');
+                for(let j=0; j<owners.length; j++){
+
+                    for(let k=0; k<users.length; k++){
+                        console.log("typeof(owners[j])="+typeof(owners[j]));
+                        console.log("typeof(users[k].id)="+typeof(users[k].id));
+                        console.log("typeof(users[k].id.toString())="+typeof(users[k].id.toString()));
+                        console.log("owners[j]="+owners[j]);
+                        console.log("users[k].id="+users[k].id);
+
+                        if(owners[j] == users[k].id.toString()){
+                            files.push(rows[i]);
+                            matched = true;
+                            console.log("Matched file");
+                            break;
+                        }
+                    }
+                    if(matched){ break ;}
+                }
+            }
+
+            console.log("Files = " + files);
+
+            socket.emit('searchResult', {results: files});
         })
     });
 
