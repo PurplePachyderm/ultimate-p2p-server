@@ -4,6 +4,8 @@ function listen(socket, database, users){
     //Update local data on user's shared file at his connection
     socket.on('clientListUpdate', (data) => {
 
+        console.log("Entering da function\n");
+
         let eventSent;
 
         //Get user DB Id
@@ -14,10 +16,17 @@ function listen(socket, database, users){
                 id = users[i].id;
                 break;
             }
+            i++;
         }
+
+        console.log("Found user!");
+        console.log("Entering phase 1?");
 
         //Add new files
         if(data.unmatchedFiles.length > 0){
+
+            console.log("Need to add files")
+
             eventSent = true;
 
                 //Build the query dynamically to add all the files at once
@@ -29,18 +38,26 @@ function listen(socket, database, users){
                 database.query(query, [data.unmatchedFiles[i], id.toString()])
                 .then(rows => {
 
+                    console.log("Added file "+rows.insertId);
+
                     newFilesData.list.push({id: rows.insertId, name: data.unmatchedFiles[i]});
 
                     if(i == data.unmatchedFiles.length - 1){
                         socket.emit('rebuildData', newFilesData);
+                        console.log("Sent:");
+                        console.log(newFilesData);
                     };
                 });
             }
         }
 
+        console.log("Entering phase 2?");
 
         //Remove owner in old files
         if(data.deletedFiles.length > 0){
+
+            console.log("Need to remove ownerships");
+
             if(!eventSent){
                 socket.emit('rebuildData', {list: []});
             }
@@ -68,6 +85,8 @@ function listen(socket, database, users){
                 let newData = [];
                 for(let i=0; i<rows.length; i++){
 
+                    console.log("Removig ID");
+
                     rows[i].owners = rows[i].owners.split(',');
 
                     for(let j=0; j<rows[i].owners.length; j++){
@@ -89,6 +108,8 @@ function listen(socket, database, users){
         console.log("Exiting callback");
 
     });
+
+
 
     //TODO Optimize this shit
 
@@ -137,6 +158,36 @@ function listen(socket, database, users){
                 i++;
             }
         });
+    });
+
+
+        //Used after file donwload
+    socket.on('addOwnership', data => {
+        console.log('Entering a world of new possibilities');
+
+        let id;
+        let i=0;
+        while(i<users.length){
+            if(users[i].socketId == data.socketId){
+                id = users[i].id;
+                break;
+            }
+            i++;
+        }
+
+        let query = 'SELECT owners FROM files WHERE id = ?;'
+        database.query(query, [data.fileId])
+        .then(rows => {
+            rows[0].owners = rows[0].owners.split(',');
+            rows[0].owners.push(id);
+
+            query = 'UPDATE files SET owners = ? WHERE id = ?;';
+            return database.query(query, [rows[0].owners.toString(), data.fileId]);
+        })
+        .then(rows => {
+
+        });
+
     });
 }
 
